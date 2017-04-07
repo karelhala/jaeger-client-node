@@ -216,6 +216,7 @@ var Tracer = function () {
     }, {
         key: 'startSpan',
         value: function startSpan(operationName, options) {
+            this._logger.info("Start span");
             // Convert options.childOf to options.references as needed.
             options = options || {};
             var references = options.references || [];
@@ -249,6 +250,7 @@ var Tracer = function () {
             var ctx = new _span_context2.default();
             var internalTags = {};
             if (!parent || !parent.isValid) {
+                this._logger.info("Starting a new root span");
                 var randomId = _util2.default.getRandom64();
                 var flags = 0;
                 if (this._sampler.isSampled(operationName, internalTags)) {
@@ -269,6 +271,7 @@ var Tracer = function () {
                 ctx.parentId = null;
                 ctx.flags = flags;
             } else {
+                this._logger.info("Continuing a span: " + parent.traceId);
                 ctx.traceId = parent.traceId;
                 ctx.spanId = _util2.default.getRandom64();
                 ctx.parentId = parent.spanId;
@@ -299,9 +302,12 @@ var Tracer = function () {
     }, {
         key: 'processDeferredSampling',
         value: function processDeferredSampling(ctx, operationName, tags) {
+            this._logger.info("Got a span with deferred sampling set " + ctx);
             if (ctx.isDeferredSampling) {
                 if (this._sampler.isSampled(operationName, tags)) {
                     ctx._flags |= constants.SAMPLED_MASK;
+                    this._logger.info("Sampled with deferred sampling set " + ctx);
+                    process.stdout.write("Sampled a span with deferred sampling: " + ctx);
                 } else {
                     ctx._flags &= ~constants.SAMPLED_MASK;
                 }
