@@ -19,17 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import fs from 'fs';
+// import fs from 'fs';
 import opentracing from 'opentracing';
-import path from 'path';
-import {Thrift} from 'thriftrw';
+import * as jaeger_types from './gen-nodejs/jaeger_types';
 import Utils from './util.js';
 
 export default class ThriftUtils {
-    static _thrift = new Thrift({
-        source: fs.readFileSync(path.join(__dirname, './jaeger-idl/thrift/jaeger.thrift'), 'ascii'),
-        allowOptionalArguments: true
-    });
     static emptyBuffer: Buffer =new Buffer([0, 0 , 0, 0, 0, 0, 0, 0]);
 
     static getThriftTags(initialTags: Array<Tag>): Array<any> {
@@ -48,19 +43,19 @@ export default class ThriftUtils {
             let vType: string = '';
             let valueType = typeof(tag.value);
             if (valueType === 'number') {
-                vType = ThriftUtils._thrift.TagType.DOUBLE;
+                vType = jaeger_types.TagType.DOUBLE;
                 vDouble = tag.value;
             } else if (valueType === 'boolean') {
-                vType = ThriftUtils._thrift.TagType.BOOL;
+                vType = jaeger_types.TagType.BOOL;
                 vBool = tag.value;
             } else if (tag.value instanceof Buffer) {
-                vType = ThriftUtils._thrift.TagType.BINARY;
+                vType = jaeger_types.TagType.BINARY;
                 vBinary = tag.value;
             } else if (valueType === 'object') {
-                vType = ThriftUtils._thrift.TagType.STRING;
+                vType = jaeger_types.TagType.STRING;
                 vStr = JSON.stringify(tag.value);
             } else {
-                vType = ThriftUtils._thrift.TagType.STRING;
+                vType = jaeger_types.TagType.STRING;
                 if (valueType === 'string') {
                     vStr = tag.value;
                 } else {
